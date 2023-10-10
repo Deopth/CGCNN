@@ -60,9 +60,10 @@ class ConvLayer(nn.Module):
         # convolution
         atom_nbr_fea = atom_in_fea[nbr_fea_idx, :]
         total_nbr_fea = torch.cat(
-            [atom_in_fea.unsqueeze(1).expand(N, M, self.atom_fea_len),
-             atom_nbr_fea, nbr_fea], dim=2)
-        total_gated_fea = self.fc_full(total_nbr_fea)#total_nbr_fea中的类构造函数-初始化-- 全连接层
+            [atom_in_fea.unsqueeze(1).expand(N, M, self.atom_fea_len), #将expand拓展的 原子隐藏特征 也复制为 (N,M,self.atom_fea_len)的形状
+             atom_nbr_fea, nbr_fea], dim=2) #再torch.cat函数将上述 atom_in_fea、atom_nbr_fea 、 nbr_fea 三个特征按照维度dim=2拼接成为新向量,即是total_nbr_fea
+                                            #所以total_nbr_fea中包含了 原子隐藏特征的信息， 邻接点特征，键特征 三者组合
+        total_gated_fea = self.fc_full(total_nbr_fea) #total_nbr_fea中的类构造函数-初始化-- 全连接层
         total_gated_fea = self.bn1(total_gated_fea.view(
             -1, self.atom_fea_len*2)).view(N, M, self.atom_fea_len*2)
         nbr_filter, nbr_core = total_gated_fea.chunk(2, dim=2)
