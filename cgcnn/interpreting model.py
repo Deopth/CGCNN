@@ -65,7 +65,7 @@ class ConvLayer(nn.Module):
                                             #所以total_nbr_fea中包含了 原子隐藏特征的信息， 邻接点特征，键特征 三者组合
         total_gated_fea = self.fc_full(total_nbr_fea) #total_nbr_fea中的类构造函数-初始化-- 全连接层
         total_gated_fea = self.bn1(total_gated_fea.view(
-            -1, self.atom_fea_len*2)).view(N, M, self.atom_fea_len*2)
+            -1, self.atom_fea_len*2)).view(N, M, self.atom_fea_len*2)#
         nbr_filter, nbr_core = total_gated_fea.chunk(2, dim=2)
         nbr_filter = self.sigmoid(nbr_filter)
         nbr_core = self.softplus1(nbr_core)
