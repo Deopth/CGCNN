@@ -111,14 +111,14 @@ class CrystalGraphConvNet(nn.Module):#继承与nn.Module
         self.conv_to_fc = nn.Linear(atom_fea_len, h_fea_len)                        #卷积到全连接的 转换层
         self.conv_to_fc_softplus = nn.Softplus()                                    #卷积层到全连接转换层的激活
         if n_h > 1:
-            self.fcs = nn.ModuleList([nn.Linear(h_fea_len, h_fea_len)
+            self.fcs = nn.ModuleList([nn.Linear(h_fea_len, h_fea_len)               #
                                       for _ in range(n_h-1)])
             self.softpluses = nn.ModuleList([nn.Softplus()
                                              for _ in range(n_h-1)])
         if self.classification:
-            self.fc_out = nn.Linear(h_fea_len, 2)
+            self.fc_out = nn.Linear(h_fea_len, 2)                                    #二元 分类任务，输出两个值，分别对应所属第一第二特征的 分数或者概率
         else:
-            self.fc_out = nn.Linear(h_fea_len, 1)
+            self.fc_out = nn.Linear(h_fea_len, 1)                                    #一元 回归任务，用于单一标签预测
         if self.classification:
             self.logsoftmax = nn.LogSoftmax(dim=1)
             self.dropout = nn.Dropout()
