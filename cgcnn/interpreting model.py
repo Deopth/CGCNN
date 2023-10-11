@@ -60,10 +60,10 @@ class ConvLayer(nn.Module):
         # convolution
         atom_nbr_fea = atom_in_fea[nbr_fea_idx, :]
         total_nbr_fea = torch.cat(
-            [atom_in_fea.unsqueeze(1).expand(N, M, self.atom_fea_len), #将expand拓展的 原子隐藏特征 也复制为 (N,M,self.atom_fea_len)的形状
-             atom_nbr_fea, nbr_fea], dim=2) #再torch.cat函数将上述 atom_in_fea、atom_nbr_fea 、 nbr_fea 三个特征按照维度dim=2拼接成为新向量,即是total_nbr_fea
-                                            #所以total_nbr_fea中包含了 原子隐藏特征的信息， 邻接点特征，键特征 三者组合
-        total_gated_fea = self.fc_full(total_nbr_fea) #total_nbr_fea中的类构造函数-初始化-- 全连接层
+            [atom_in_fea.unsqueeze(1).expand(N, M, self.atom_fea_len),                 #将expand拓展的 原子隐藏特征 也复制为 (N,M,self.atom_fea_len)的形状
+             atom_nbr_fea, nbr_fea], dim=2)                                             #再torch.cat函数将上述 atom_in_fea、atom_nbr_fea 、 nbr_fea 三个特征按照维度dim=2拼接成为新向量,即是total_nbr_fea
+                                                                                        #所以total_nbr_fea中包含了 原子隐藏特征的信息， 邻接点特征，键特征 三者组合
+        total_gated_fea = self.fc_full(total_nbr_fea)                                     #total_nbr_fea中的类构造函数-初始化-- 全连接层
         total_gated_fea = self.bn1(total_gated_fea.view(
             -1, self.atom_fea_len*2)).view(N, M, self.atom_fea_len*2)#
         nbr_filter, nbr_core = total_gated_fea.chunk(2, dim=2)
@@ -75,7 +75,7 @@ class ConvLayer(nn.Module):
         return out
 
 
-class CrystalGraphConvNet(nn.Module):
+class CrystalGraphConvNet(nn.Module):#继承与nn.Module
     """
     Create a crystal graph convolutional neural network for predicting total
     material properties.
@@ -101,15 +101,15 @@ class CrystalGraphConvNet(nn.Module):
           Number of hidden features after pooling
         n_h: int
           Number of hidden layers after pooling
-        """
+        """ 
         super(CrystalGraphConvNet, self).__init__()
-        self.classification = classification
+        self.classification = classification                                         #classification:boolean initialized once at __init__()
         self.embedding = nn.Linear(orig_atom_fea_len, atom_fea_len)
         self.convs = nn.ModuleList([ConvLayer(atom_fea_len=atom_fea_len,
                                     nbr_fea_len=nbr_fea_len)
-                                    for _ in range(n_conv)])
-        self.conv_to_fc = nn.Linear(atom_fea_len, h_fea_len)
-        self.conv_to_fc_softplus = nn.Softplus()
+                                    for _ in range(n_conv)])                        # 其中 _ 是一个占位符，因为不会出现在循环体中，所以不写出来，且迭代 n_conv = 3次，每次都实例化ConvLayer对象并储存在列表中
+        self.conv_to_fc = nn.Linear(atom_fea_len, h_fea_len)                        #卷积到全连接的 转换层
+        self.conv_to_fc_softplus = nn.Softplus()                                    #卷积层到全连接转换层的激活
         if n_h > 1:
             self.fcs = nn.ModuleList([nn.Linear(h_fea_len, h_fea_len)
                                       for _ in range(n_h-1)])
